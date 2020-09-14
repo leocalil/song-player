@@ -67,10 +67,9 @@ let songIndex = 0;
 
 // Previous Song
 function prevSong(){
-    if (songIndex===0) {
-        songIndex=songIndex;
-    } else {
-        songIndex--;
+    songIndex--;
+    if (songIndex<0) {
+        songIndex=songs.length-1;
     }
     loadSong(songs[songIndex]);
     playSong();
@@ -78,10 +77,9 @@ function prevSong(){
 
 // Next Song
 function nextSong(){
-    if (songIndex===songs.length-1) {
-        songIndex=songIndex;
-    } else {
-        songIndex++;
+    songIndex++;
+    if (songIndex>songs.length-1) {
+        songIndex=0;
     }
     loadSong(songs[songIndex]);
     playSong();
