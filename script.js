@@ -3,6 +3,10 @@ let image = document.querySelector('img');
 let title = document.getElementById('title');
 let artist = document.getElementById('artist');
 let music = document.querySelector('audio');
+let progressContainer = document.getElementById('progress-container');
+let progress = document.getElementById('progress');
+let currentTimeEl = document.getElementById('current-time');
+let duretionEl = document.getElementById('duration');
 let prevBtn = document.getElementById('prev');
 let playBtn = document.getElementById('play');
 let nextBtn = document.getElementById('next');
@@ -47,13 +51,6 @@ function pauseSong(){
     playBtn.setAttribute('title', 'Tocar');
 }
 
-// Event listeners
-// Play or pause
-playBtn.addEventListener('click', ()=>(isPlaying ? pauseSong() : playSong()));
-// Next or previous
-prevBtn.addEventListener('click',prevSong);
-nextBtn.addEventListener('click',nextSong);
-
 // Update DOM
 function loadSong(song){
     title.textContent = song.displayName;
@@ -85,6 +82,51 @@ function nextSong(){
     playSong();
 }
 
+// Update Progress Bar & Time
+function updateProgressBar(event){
+        if (isPlaying){
+        let {duration, currentTime} = event.srcElement; // Destructuring assignment
+        // Update progress bar
+        progressPercent = (currentTime/duration)*100;
+        progress.style.width = `${progressPercent}%`;
+        // Calculate display for duration 
+        let durationMinutes = Math.floor(duration / 60);
+        let durationSeconds = Math.floor(duration % 60);
+        if(durationSeconds<10){
+            durationSeconds = `0${durationSeconds}`;
+        }
+        // Delay switching duration element to avoid NaN
+        if(durationSeconds){
+            duretionEl.textContent = `${durationMinutes}:${durationSeconds}`;
+        }
+        // Calculate display for currentTime 
+        let currentMinutes = Math.floor(currentTime / 60);
+        let currentSeconds = Math.floor(currentTime % 60);
+        if(currentSeconds<10){
+            currentSeconds = `0${currentSeconds}`;
+        }
+        if(currentSeconds){
+            currentTimeEl.textContent = `${currentMinutes}:${currentSeconds}`;
+        }
+    }
+}
+
 // On Load - select first song
 loadSong(songs[songIndex]);
 
+// Set Progress Bar
+function setProgressBar(event){
+    let width = event.srcElement.clientWidth;
+    let clickX = event.offsetX;
+    let {duration} = music ; // Destructuring assignment
+    let durationSecondsTarget = clickX/width*duration;
+    music.currentTime = durationSecondsTarget;
+}
+
+// Event listeners
+playBtn.addEventListener('click', ()=>(isPlaying ? pauseSong() : playSong()));
+prevBtn.addEventListener('click',prevSong);
+nextBtn.addEventListener('click',nextSong);
+music.addEventListener('timeupdate', updateProgressBar);
+music.addEventListener('ended', nextSong);
+progressContainer.addEventListener('click',setProgressBar);
